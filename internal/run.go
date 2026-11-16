@@ -23,15 +23,6 @@ import (
 // positionnement à la racine du dépôt, contrôle de branche, vérification
 // des outils, lint (Rector puis PHP-CS-Fixer) et commit/push.
 func Run(args []string) error {
-	confirmed, err := ui.Confirm("Valider le commit ?", true)
-	if err != nil || !confirmed {
-		// Annulation utilisateur (« No », Ctrl+C, EOF) : sortie propre
-		// sans code d'erreur — l'outil a fait son travail, make reste
-		// silencieux (`make commit` ne s'arrête donc pas sur ce cas).
-		fmt.Printf("%sCommit annulé.%s\n", ui.Red, ui.Reset)
-		return nil
-	}
-
 	if len(args) == 0 || strings.TrimSpace(args[0]) == "" {
 		fmt.Printf("%s❌ Merci de préciser le message du commit en argument.%s\n", ui.Red, ui.Reset)
 		fmt.Printf("%sExemple : commit \"Mise à jour de la version de Yoostart\"%s\n", ui.Yellow, ui.Reset)
@@ -42,6 +33,15 @@ func Run(args []string) error {
 		fmt.Printf("%s❌ Merci de préciser le nom de la branche en argument.%s\n", ui.Red, ui.Reset)
 		fmt.Printf("%sExemple : commit \"Mise à jour de la version de Yoostart\" main%s\n", ui.Yellow, ui.Reset)
 		os.Exit(1)
+	}
+
+	confirmed, err := ui.Confirm("Valider le commit ?", true)
+	if err != nil || !confirmed {
+		// Annulation utilisateur (« No », Ctrl+C, EOF) : sortie propre
+		// sans code d'erreur — l'outil a fait son travail, make reste
+		// silencieux (`make commit` ne s'arrête donc pas sur ce cas).
+		fmt.Printf("%sCommit annulé.%s\n", ui.Red, ui.Reset)
+		return nil
 	}
 
 	commitMessage, branchName := args[0], args[1]
