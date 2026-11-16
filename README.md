@@ -10,15 +10,19 @@
 
 `commit` est une petite CLI en Go qui encapsule le cycle quotidien `git add / commit / push` derrière une commande interactive unique. Lance-la depuis n'importe quel répertoire : elle résout elle-même la racine du dépôt, contrôle la branche cible, exécute tes linters quand le projet en a, et pousse quand tout passe.
 
-C'est le port Go du script shell `commit.sh` de YOOSTART (conservé dans le monorepo comme référence).
-
 ---
 
 ## Démarrage rapide
 
 ### 1. Installer
 
-Récupère un binaire depuis la [page des releases](https://github.com/mzeahmed/commit/releases/latest) ou passe par `go install` — voir [Installation](#installation).
+Une seule ligne (Linux) :
+
+```bash
+curl -sSL https://github.com/mzeahmed/commit/releases/latest/download/commit_Linux_x86_64.tar.gz | sudo tar -xz -C /usr/local/bin commit
+```
+
+Voir [Installation](#installation) pour macOS, Windows, ARM64 et la compilation depuis les sources.
 
 ### 2. Commiter
 
@@ -46,22 +50,9 @@ L'outil demande confirmation, lint si applicable, committe et pousse.
 
 ## Installation
 
-### Télécharger un binaire
+Des binaires pré-construits pour Linux, macOS et Windows sont disponibles sur la page des [GitHub Releases](https://github.com/mzeahmed/commit/releases/latest). Choisis l'archive correspondant à ton OS et ton architecture (`amd64` ou `arm64`). Linux est couvert par la commande one-liner du [Démarrage rapide](#démarrage-rapide) ; les autres plateformes suivent le schéma manuel ci-dessous.
 
-Des binaires pré-construits pour Linux, macOS et Windows sont disponibles sur la page des [GitHub Releases](https://github.com/mzeahmed/commit/releases/latest). Choisis l'archive correspondant à ton OS et ton architecture (`amd64` ou `arm64`).
-
-#### Linux
-
-```bash
-curl -LO https://github.com/mzeahmed/commit/releases/latest/download/commit_Linux_x86_64.tar.gz
-tar -xzf commit_Linux_x86_64.tar.gz
-sudo mv commit /usr/local/bin/
-commit "hello world" main
-```
-
-Utilise `commit_Linux_arm64.tar.gz` sur ARM64 (Raspberry Pi, AWS Graviton, …).
-
-#### macOS
+### macOS
 
 ```bash
 curl -LO https://github.com/mzeahmed/commit/releases/latest/download/commit_Darwin_arm64.tar.gz
@@ -75,7 +66,7 @@ Utilise `commit_Darwin_x86_64.tar.gz` sur Mac Intel. Si macOS refuse d'exécuter
 xattr -d com.apple.quarantine /usr/local/bin/commit
 ```
 
-#### Windows (PowerShell)
+### Windows (PowerShell)
 
 ```powershell
 Invoke-WebRequest -Uri https://github.com/mzeahmed/commit/releases/latest/download/commit_Windows_x86_64.zip -OutFile commit.zip
@@ -90,12 +81,6 @@ Utilise `commit_Windows_arm64.zip` sur les appareils ARM64. Déplace `commit.exe
 git clone https://github.com/mzeahmed/commit.git
 cd commit
 go install
-```
-
-Ou, depuis le monorepo YOOSTART :
-
-```bash
-make install-commit   # compile dans .bin/ puis installe dans /usr/local/bin (sudo)
 ```
 
 ---
@@ -136,7 +121,8 @@ commit <message> <branche>
 | Échec de git | Erreur, **exit 1** |
 | Arguments manquants | Message d'usage, **exit 1** |
 
-Le code de sortie 0 sur les annulations est volontaire : `make commit` (dans le monorepo) ne doit pas s'arrêter avec une ligne `make: *** Error 1` quand tu changes simplement d'avis. Les vraies échecs gardent exit 1 pour rester chaînables (`&&`).
+Quand tu chaînes l'outil dans un Makefile (`make commit`), changer d'avis ne doit pas faire échouer la chaîne de build avec une ligne
+`make: *** Error 1`. Les vrais échecs gardent exit 1 pour rester chaînables (`&&`).
 
 ---
 
