@@ -30,7 +30,7 @@ build: ## Build local binary
 	@echo "$(GREEN)✓ Binary generated in bin/commit$(RESET)"
 
 install: build ## Build locally and install to /usr/local/bin
-	sudo install -m 755 bin/commit /usr/local/bin/commit
+	sudo install -m 755 bin/commit /usr/local/bin/commit && rm -rf bin/
 	@echo "$(GREEN)✓ Installed in /usr/local/bin/commit$(RESET)"
 	@command -v commit
 
