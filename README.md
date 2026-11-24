@@ -16,13 +16,19 @@
 
 ### 1. Installer
 
-Une seule ligne (Linux) :
+Une seule ligne (Linux, macOS) :
 
 ```bash
-curl -sSL https://github.com/mzeahmed/commit/releases/latest/download/commit_Linux_x86_64.tar.gz | sudo tar -xz -C /usr/local/bin commit
+curl -fsSL https://raw.githubusercontent.com/mzeahmed/commit/main/install.sh | sh
 ```
 
-Voir [Installation](#installation) pour macOS, Windows, ARM64 et la compilation depuis les sources.
+Télécharge la dernière release pour ton système et ton architecture, vérifie son checksum et installe le binaire dans `/usr/local/bin` (sudo si nécessaire). Pour une version précise ou un autre dossier :
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/mzeahmed/commit/main/install.sh | VERSION=v1.2.0 BINDIR=~/.local/bin sh
+```
+
+Voir [Installation](#installation) pour Windows, l'installation manuelle et la compilation depuis les sources.
 
 ### 2. Commiter
 
@@ -50,9 +56,22 @@ L'outil demande confirmation, lint si applicable, committe et pousse.
 
 ## Installation
 
-Des binaires pré-construits pour Linux, macOS et Windows sont disponibles sur la page des [GitHub Releases](https://github.com/mzeahmed/commit/releases/latest). Choisis l'archive correspondant à ton OS et ton architecture (`amd64` ou `arm64`). Linux est couvert par la commande one-liner du [Démarrage rapide](#démarrage-rapide) ; les autres plateformes suivent le schéma manuel ci-dessous.
+Des binaires pré-construits pour Linux, macOS et Windows sont disponibles sur la page des [GitHub Releases](https://github.com/mzeahmed/commit/releases/latest) (`amd64` ou `arm64`).
 
-### macOS
+### Linux et macOS (script, recommandé)
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/mzeahmed/commit/main/install.sh | sh
+```
+
+Le script détecte le système (`Linux`, `Darwin`) et l'architecture (`x86_64`, `arm64`), télécharge l'archive de la release, vérifie son checksum (`checksums.txt`) et installe `commit` dans `/usr/local/bin`, avec `sudo` si ce dossier n'est pas accessible en écriture. Variables :
+
+- `VERSION` : release à installer (ex. `v1.2.0`), par défaut la dernière ;
+- `BINDIR` : dossier d'installation, par défaut `/usr/local/bin`.
+
+Relancer la même commande met à jour `commit`.
+
+### macOS (manuel)
 
 ```bash
 curl -LO https://github.com/mzeahmed/commit/releases/latest/download/commit_Darwin_arm64.tar.gz
@@ -175,3 +194,9 @@ internal/ui/       couleurs ANSI + confirmation Oui/Non (promptui)
 - **Sûr par défaut** — rien ne touche le dépôt avant ta confirmation.
 - **Silencieux en cas de succès** — les logs de lint ne sont montrés que quand ils comptent (échec).
 - **Un no-op n'est pas une erreur** — changer d'avis ne doit jamais casser ta chaîne de build.
+
+---
+
+## Licence
+
+[MIT](LICENSE). Historique des versions : [CHANGELOG](CHANGELOG.md).
