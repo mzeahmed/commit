@@ -38,7 +38,7 @@ commit "Corriger le lien de l'avatar dans la messagerie" feature-branch
 
 ### 3. C'est tout
 
-L'outil demande confirmation, lint si applicable, committe et pousse.
+L'outil demande confirmation, lint si applicable, committe, puis demande s'il faut pousser.
 
 ---
 
@@ -125,6 +125,7 @@ commit <message> <branche>
 ✅ PHP-CS-Fixer OK.
 📦 Ajout des modifications et commit...
 ✅ Commit effectué.
+? Pousser vers origin/develop ?  (← confirmation Oui / Non)
 🚀 Push vers origin/develop...
 ✅ Push effectué.
 ```
@@ -134,6 +135,7 @@ commit <message> <branche>
 | Situation | Résultat |
 |---|---|
 | Confirmation « No », Ctrl+C ou EOF | `Commit annulé.` — rien ne se passe, sortie propre (0) |
+| Push refusé (« No », Ctrl+C ou EOF) | Commit conservé en local, rien n'est poussé, sortie propre (0) |
 | Branche demandée ≠ branche courante | Avertissement, rien ne se passe, sortie propre (0) |
 | Aucun changement à committer | Message (`Aucun changement à committer`), sortie propre (0) |
 | Échec du lint | Log affiché en rouge, commit/push annulés, **exit 1** |
@@ -152,7 +154,7 @@ Quand tu chaînes l'outil dans un Makefile (`make commit`), changer d'avis ne do
 3. **Garde de branche** — `git rev-parse --abbrev-ref HEAD` comparé à la branche demandée.
 4. **Lint** *(dépôts PHP uniquement)* — Rector puis PHP-CS-Fixer, tous deux en dry-run, exécutés en arrière-plan avec un spinner (`| / - \`) ; le log capturé n'est affiché que si une étape échoue.
 5. **Commit** — `git add .`, sauté si l'index correspond à HEAD (`git diff --cached --quiet`), sinon `git commit`.
-6. **Push** — `git push origin <branche>`.
+6. **Push** *(sur confirmation, **Oui** par défaut)* — `git push origin <branche>`.
 
 ---
 

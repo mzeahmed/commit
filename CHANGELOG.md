@@ -5,6 +5,14 @@ Le format suit [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/) et le pr
 
 ## [Unreleased]
 
+## [0.1.5] - 2026-11-25
+
+### Modifié
+- Après le commit, une confirmation demande s'il faut pousser (Oui par défaut). En cas de refus, le commit reste en local.
+
+### Supprimé
+- Étape Composer (`composer update --no-dev` puis `composer install`), annoncée comme retirée en 0.1.4 mais toujours présente dans le code de cette version.
+
 ## [0.1.4] - 2026-11-24
 
 ### Ajouté
@@ -42,7 +50,8 @@ Le format suit [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/) et le pr
 - Première version de la CLI `commit` : `git add / commit / push` derrière une commande interactive unique, résolution de la racine du dépôt, garde de branche, lint Rector et PHP-CS-Fixer quand `vendor/bin/` existe.
 - README.
 
-[Unreleased]: https://github.com/mzeahmed/commit/compare/v0.1.4...HEAD
+[Unreleased]: https://github.com/mzeahmed/commit/compare/v0.1.5...HEAD
+[0.1.5]: https://github.com/mzeahmed/commit/compare/v0.1.4...v0.1.5
 [0.1.4]: https://github.com/mzeahmed/commit/compare/v0.1.3...v0.1.4
 [0.1.3]: https://github.com/mzeahmed/commit/compare/v0.1.2...v0.1.3
 [0.1.2]: https://github.com/mzeahmed/commit/compare/v0.1.1...v0.1.2
