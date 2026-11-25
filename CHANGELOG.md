@@ -8,6 +8,9 @@ Le format suit [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/) et le pr
 ### Ajouté
 - `make clean-branches` : supprime les branches locales et distantes fusionnées dans `develop`, sauf `main`, `develop` et la branche courante.
 
+### Corrigé
+- `make clean-branches` détecte les branches fusionnées en squash.
+
 ## [0.2.0] - 2026-11-25
 
 ### Ajouté
