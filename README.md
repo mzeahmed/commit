@@ -33,7 +33,7 @@ Voir [Installation](#installation) pour Windows, l'installation manuelle et la c
 ### 2. Commiter
 
 ```bash
-commit "Corriger le lien de l'avatar dans la messagerie" feature-branch
+commit "Corriger le lien de l'avatar dans la messagerie"
 ```
 
 ### 3. C'est tout
@@ -47,7 +47,7 @@ L'outil demande confirmation, lint si applicable, committe, puis demande s'il fa
 - **Fonctionne partout** — lance `commit` depuis n'importe quel sous-dossier de n'importe quel dépôt Git ; la racine est résolue automatiquement
 - **Confirmation interactive** — prompt Oui/Non avant que quoi que ce soit ne touche ton arbre de travail
 - **Garde de branche** — refuse de pousser si la branche demandée n'est pas la branche courante (avertit et sort proprement)
-- **Lint PHP intégré** — exécute Rector et PHP-CS-Fixer en dry-run quand `vendor/bin/` existe, avec un spinner ; la sortie n'est affichée qu'en cas d'échec
+- **Lint PHP intégré** — exécute en dry-run ceux de Rector et PHP-CS-Fixer présents dans `vendor/bin/`, avec un spinner ; la sortie n'est affichée qu'en cas d'échec
 - **Non-PHP friendly** — dans les dépôts sans outillage PHP (front, mobile, …), le lint est sauté avec un message
 - **No-op sûr** — quand il n'y a rien à committer, rien n'est poussé et le code de sortie reste propre
 - **Pas de couleurs en CI** — la sortie ANSI est désactivée si stdout n'est pas un TTY ou si `NO_COLOR` est défini
@@ -107,18 +107,22 @@ go install
 ## Utilisation
 
 ```bash
-commit <message> <branche>
+commit <message> [branche]
+commit --help
+commit --version
 ```
 
 | Argument | Description |
 |---|---|
 | `message` | Le message de commit (mets-le entre guillemets s'il contient des espaces) |
-| `branche` | La branche vers laquelle pousser — doit correspondre à la branche courante |
+| `branche` | Facultative : garde-fou qui doit correspondre à la branche courante (utilisée par défaut) |
 
 ### Exemple de session
 
 ```text
-? Valider le commit ?  (← confirmation Oui / Non)
+📋 Fichiers qui seront commités sur develop :
+ M internal/run.go
+? Valider le commit sur develop ?  (← confirmation Oui / Non)
 🔧 Rector...
 ✅ Rector OK.
 🎨 PHP-CS-Fixer...
@@ -134,10 +138,10 @@ commit <message> <branche>
 
 | Situation | Résultat |
 |---|---|
-| Confirmation « No », Ctrl+C ou EOF | `Commit annulé.` — rien ne se passe, sortie propre (0) |
-| Push refusé (« No », Ctrl+C ou EOF) | Commit conservé en local, rien n'est poussé, sortie propre (0) |
+| Confirmation « Non », Ctrl+C ou EOF | `Commit annulé.` — rien ne se passe, sortie propre (0) |
+| Push refusé (« Non », Ctrl+C ou EOF) | Commit conservé en local, rien n'est poussé, sortie propre (0) |
 | Branche demandée ≠ branche courante | Avertissement, rien ne se passe, sortie propre (0) |
-| Aucun changement à committer | Message (`Aucun changement à committer`), sortie propre (0) |
+| Aucun changement à committer | Message ; s'il reste des commits non poussés, propose de les envoyer |
 | Échec du lint | Log affiché en rouge, commit/push annulés, **exit 1** |
 | Échec de git | Erreur, **exit 1** |
 | Arguments manquants | Message d'usage, **exit 1** |
@@ -149,12 +153,12 @@ Quand tu chaînes l'outil dans un Makefile (`make commit`), changer d'avis ne do
 
 ## Fonctionnement
 
-1. **Confirmation** — prompt Oui/Non (flèches, Entrée). Le défaut est **Oui**.
-2. **Racine du dépôt** — `git rev-parse --show-toplevel`, puis `chdir` vers elle.
-3. **Garde de branche** — `git rev-parse --abbrev-ref HEAD` comparé à la branche demandée.
-4. **Lint** *(dépôts PHP uniquement)* — Rector puis PHP-CS-Fixer, tous deux en dry-run, exécutés en arrière-plan avec un spinner (`| / - \`) ; le log capturé n'est affiché que si une étape échoue.
+1. **Racine du dépôt** — `git rev-parse --show-toplevel`, puis `chdir` vers elle.
+2. **Garde de branche** — `git symbolic-ref --short HEAD`, comparé à la branche demandée si elle est donnée.
+3. **Aperçu et confirmation** — liste des fichiers modifiés ou nouveaux, puis prompt Oui/Non (flèches, Entrée ; **Oui** par défaut). Sans changement, l'outil propose de pousser les commits en attente, sinon il s'arrête.
+4. **Lint** *(dépôts PHP uniquement)* — Rector puis PHP-CS-Fixer (chacun s'il est présent), en dry-run, exécutés en arrière-plan avec un spinner (`| / - \`) ; le log capturé n'est affiché que si une étape échoue.
 5. **Commit** — `git add .`, sauté si l'index correspond à HEAD (`git diff --cached --quiet`), sinon `git commit`.
-6. **Push** *(sur confirmation, **Oui** par défaut)* — `git push origin <branche>`.
+6. **Push** *(sur confirmation, **Oui** par défaut)* — `git push -u origin <branche>`.
 
 ---
 

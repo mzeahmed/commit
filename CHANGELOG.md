@@ -5,6 +5,24 @@ Le format suit [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/) et le pr
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-11-25
+
+### Ajouté
+- Liste des fichiers qui seront commités, affichée avant la confirmation.
+- Sans changement, proposition de pousser les commits restés en local.
+- Options `--help` et `--version`.
+
+### Modifié
+- La branche est vérifiée avant toute question, et l'absence de changement arrête l'outil avant le lint.
+- Push avec `-u` : le suivi de la branche distante est configuré.
+- L'argument `branche` devient facultatif (branche courante par défaut).
+- Rector et PHP-CS-Fixer sont détectés séparément.
+- Les confirmations affichent « Oui / Non » ; la première nomme la branche.
+- Les erreurs d'arguments sont écrites sur la sortie d'erreur.
+
+### Corrigé
+- Plus d'échec sur un dépôt sans aucun commit.
+
 ## [0.1.5] - 2026-11-25
 
 ### Modifié
@@ -50,7 +68,8 @@ Le format suit [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/) et le pr
 - Première version de la CLI `commit` : `git add / commit / push` derrière une commande interactive unique, résolution de la racine du dépôt, garde de branche, lint Rector et PHP-CS-Fixer quand `vendor/bin/` existe.
 - README.
 
-[Unreleased]: https://github.com/mzeahmed/commit/compare/v0.1.5...HEAD
+[Unreleased]: https://github.com/mzeahmed/commit/compare/v0.2.0...HEAD
+[0.2.0]: https://github.com/mzeahmed/commit/compare/v0.1.5...v0.2.0
 [0.1.5]: https://github.com/mzeahmed/commit/compare/v0.1.4...v0.1.5
 [0.1.4]: https://github.com/mzeahmed/commit/compare/v0.1.3...v0.1.4
 [0.1.3]: https://github.com/mzeahmed/commit/compare/v0.1.2...v0.1.3

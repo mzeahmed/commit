@@ -10,12 +10,12 @@ import (
 // un `promptui.Select` (flèches haut/bas, Entrée pour valider).
 //
 // Le choix par défaut — l'élément pré-sélectionné — est piloté par
-// `defaultYes` : les items sont ordonnés pour placer « Yes » en premier
-// (sélection par défaut) s'il vaut true, « No » sinon. L'utilisateur
+// `defaultYes` : les items sont ordonnés pour placer « Oui » en premier
+// (sélection par défaut) s'il vaut true, « Non » sinon. L'utilisateur
 // voit toujours les deux options, seul le point de départ du curseur
 // change ; appuyer sur Entrée sans bouger accepte donc le défaut.
 //
-// Renvoie true uniquement si l'utilisateur a sélectionné « Yes ».
+// Renvoie true uniquement si l'utilisateur a sélectionné « Oui ».
 // Renvoie une erreur si l'interaction échoue ou est interrompue —
 // Ctrl+C (`promptui.ErrInterrupt`), EOF, terminal absent : dans ce cas
 // le booléen n'est pas exploitable et l'appelant doit abandonner le
@@ -23,9 +23,9 @@ import (
 // commit sur toute erreur). Nécessite un terminal interactif : jamais
 // utilisable en CI ou script non TTY.
 func Confirm(label string, defaultYes bool) (bool, error) {
-	items := []string{"Yes", "No"}
+	items := []string{"Oui", "Non"}
 	if !defaultYes {
-		items = []string{"No", "Yes"}
+		items = []string{"Non", "Oui"}
 	}
 
 	prompt := promptui.Select{
@@ -41,5 +41,5 @@ func Confirm(label string, defaultYes bool) (bool, error) {
 		return false, err
 	}
 
-	return result == "Yes", nil
+	return result == "Oui", nil
 }
