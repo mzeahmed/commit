@@ -35,15 +35,6 @@ func Run(args []string) error {
 		os.Exit(1)
 	}
 
-	confirmed, err := ui.Confirm("Valider le commit ?", true)
-	if err != nil || !confirmed {
-		// Annulation utilisateur (« No », Ctrl+C, EOF) : sortie propre
-		// sans code d'erreur — l'outil a fait son travail, make reste
-		// silencieux (`make commit` ne s'arrête donc pas sur ce cas).
-		fmt.Printf("%sCommit annulé.%s\n", ui.Red, ui.Reset)
-		return nil
-	}
-
 	commitMessage, branchName := args[0], args[1]
 
 	// Se placer à la racine du repo (au cas où), comme le script bash.
@@ -73,6 +64,31 @@ func Run(args []string) error {
 		return nil
 	}
 
+	// Montrer ce que `git add .` va embarquer avant de demander confirmation.
+	changes, err := gitOutput("status", "--porcelain")
+	if err != nil {
+		return fmt.Errorf("lecture de l'état du dépôt : %w", err)
+	}
+
+	if changes == "" {
+		fmt.Printf("%sℹ️  Aucun changement à committer. Rien poussé.%s\n", ui.Yellow, ui.Reset)
+		return nil
+	}
+
+	fmt.Printf("%s📋 Fichiers qui seront commités sur %s :%s\n", ui.Cyan, branchName, ui.Reset)
+	if err := runGit("status", "--short", "--untracked-files=all"); err != nil {
+		return err
+	}
+
+	confirmed, err := ui.Confirm("Valider le commit ?", true)
+	if err != nil || !confirmed {
+		// Annulation utilisateur (« No », Ctrl+C, EOF) : sortie propre
+		// sans code d'erreur — l'outil a fait son travail, make reste
+		// silencieux (`make commit` ne s'arrête donc pas sur ce cas).
+		fmt.Printf("%sCommit annulé.%s\n", ui.Red, ui.Reset)
+		return nil
+	}
+
 	// Lint PHP (Rector → PHP-CS-Fixer) : uniquement si le repo courant
 	// porte des outils PHP (vendor/bin) — c'est le cas du monorepo
 	// yoostart, pas des autres repos (mobile, v4/front, v4/api…). Le
@@ -85,6 +101,7 @@ func Run(args []string) error {
 		if err := requireBinary("vendor/bin/rector"); err != nil {
 			return err
 		}
+
 		if err := requireBinary("vendor/bin/php-cs-fixer"); err != nil {
 			return err
 		}
@@ -121,6 +138,7 @@ func Run(args []string) error {
 	if err := runGit("commit", "-m", commitMessage); err != nil {
 		return err
 	}
+
 	fmt.Printf("%s✅ Commit effectué.%s\n", ui.Green, ui.Reset)
 
 	// Push, uniquement sur confirmation. Un refus (« No », Ctrl+C, EOF)
@@ -128,7 +146,7 @@ func Run(args []string) error {
 	push, err := ui.Confirm(fmt.Sprintf("Pousser vers origin/%s ?", branchName), true)
 	if err != nil || !push {
 		fmt.Printf(
-			"%sℹ️  Rien poussé, le commit reste en local. Pour pousser : git push origin %s%s\n",
+			"%sℹ️  Rien poussé, le commit reste en local. Pour pousser : git push -u origin %s%s\n",
 			ui.Yellow,
 			branchName,
 			ui.Reset,
@@ -137,7 +155,7 @@ func Run(args []string) error {
 	}
 
 	fmt.Printf("%s🚀 Push vers origin/%s...%s\n", ui.Cyan, branchName, ui.Reset)
-	if err := runGit("push", "origin", branchName); err != nil {
+	if err := runGit("push", "-u", "origin", branchName); err != nil {
 		return err
 	}
 	fmt.Printf("%s✅ Push effectué.%s\n", ui.Green, ui.Reset)

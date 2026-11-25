@@ -118,6 +118,8 @@ commit <message> <branche>
 ### Exemple de session
 
 ```text
+📋 Fichiers qui seront commités sur develop :
+ M internal/run.go
 ? Valider le commit ?  (← confirmation Oui / Non)
 🔧 Rector...
 ✅ Rector OK.
@@ -149,12 +151,12 @@ Quand tu chaînes l'outil dans un Makefile (`make commit`), changer d'avis ne do
 
 ## Fonctionnement
 
-1. **Confirmation** — prompt Oui/Non (flèches, Entrée). Le défaut est **Oui**.
-2. **Racine du dépôt** — `git rev-parse --show-toplevel`, puis `chdir` vers elle.
-3. **Garde de branche** — `git rev-parse --abbrev-ref HEAD` comparé à la branche demandée.
+1. **Racine du dépôt** — `git rev-parse --show-toplevel`, puis `chdir` vers elle.
+2. **Garde de branche** — `git rev-parse --abbrev-ref HEAD` comparé à la branche demandée.
+3. **Aperçu et confirmation** — liste des fichiers modifiés ou nouveaux, puis prompt Oui/Non (flèches, Entrée ; **Oui** par défaut). Sans changement, l'outil s'arrête ici.
 4. **Lint** *(dépôts PHP uniquement)* — Rector puis PHP-CS-Fixer, tous deux en dry-run, exécutés en arrière-plan avec un spinner (`| / - \`) ; le log capturé n'est affiché que si une étape échoue.
 5. **Commit** — `git add .`, sauté si l'index correspond à HEAD (`git diff --cached --quiet`), sinon `git commit`.
-6. **Push** *(sur confirmation, **Oui** par défaut)* — `git push origin <branche>`.
+6. **Push** *(sur confirmation, **Oui** par défaut)* — `git push -u origin <branche>`.
 
 ---
 

@@ -5,6 +5,13 @@ Le format suit [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/) et le pr
 
 ## [Unreleased]
 
+### Ajouté
+- Liste des fichiers qui seront commités, affichée avant la confirmation.
+
+### Modifié
+- La branche est vérifiée avant toute question, et l'absence de changement arrête l'outil avant le lint.
+- Push avec `-u` : le suivi de la branche distante est configuré.
+
 ## [0.1.5] - 2026-11-25
 
 ### Modifié
