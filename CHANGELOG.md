@@ -5,6 +5,9 @@ Le format suit [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/) et le pr
 
 ## [Unreleased]
 
+### Ajouté
+- `make clean-branches` : supprime les branches locales et distantes fusionnées dans `develop`, sauf `main`, `develop` et la branche courante.
+
 ## [0.2.0] - 2026-11-25
 
 ### Ajouté
