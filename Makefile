@@ -17,9 +17,15 @@ RESET  := \033[0m
 # est toujours conservée ; HEAD est la référence symbolique du remote.
 PROTECTED_BRANCHES := ^(main|develop|HEAD)$$
 
-# Seules les branches déjà fusionnées dans origin/develop sont supprimables.
-LOCAL_BRANCHES  = git branch --merged origin/develop --format='%(refname:short)' | grep -vE '$(PROTECTED_BRANCHES)' | grep -vxF "$$(git branch --show-current)"
-REMOTE_BRANCHES = git branch -r --merged origin/develop --format='%(refname:lstrip=3)' | grep -vE '$(PROTECTED_BRANCHES)'
+# Seules les branches fusionnées dans origin/develop sont supprimables : fusion classique
+# (la branche est un ancêtre) ou squash (un commit de develop apporte le même correctif).
+FILTER_MERGED = while read -r ref name; do \
+	if git merge-base --is-ancestor "$$ref" origin/develop \
+	|| git cherry origin/develop "$$(git commit-tree "$$ref^{tree}" -p "$$(git merge-base origin/develop "$$ref")" -m squash)" | grep -q '^-'; \
+	then echo "$$name"; fi; done
+
+LOCAL_BRANCHES  = git for-each-ref --format='%(refname) %(refname:short)' refs/heads | $(FILTER_MERGED) | grep -vE '$(PROTECTED_BRANCHES)' | grep -vxF "$$(git branch --show-current)"
+REMOTE_BRANCHES = git for-each-ref --format='%(refname) %(refname:lstrip=3)' refs/remotes/origin | $(FILTER_MERGED) | grep -vE '$(PROTECTED_BRANCHES)'
 
 help: ## Show available commands
 	@echo ""
