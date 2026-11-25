@@ -11,7 +11,15 @@ RED    := \033[0;31m
 RESET  := \033[0m
 
 .PHONY: help build install fmt vet test check tidy \
-        release-check release-snapshot clean
+        release-check release-snapshot clean clean-branches
+
+# Branches que clean-branches ne supprime jamais (noms entiers). La branche courante
+# est toujours conservée ; HEAD est la référence symbolique du remote.
+PROTECTED_BRANCHES := ^(main|develop|HEAD)$$
+
+# Seules les branches déjà fusionnées dans origin/develop sont supprimables.
+LOCAL_BRANCHES  = git branch --merged origin/develop --format='%(refname:short)' | grep -vE '$(PROTECTED_BRANCHES)' | grep -vxF "$$(git branch --show-current)"
+REMOTE_BRANCHES = git branch -r --merged origin/develop --format='%(refname:lstrip=3)' | grep -vE '$(PROTECTED_BRANCHES)'
 
 help: ## Show available commands
 	@echo ""
@@ -73,3 +81,20 @@ release-snapshot: ## Simulate a release locally (builds dist/, no GitHub release
 clean: ## Remove generated files
 	rm -rf bin
 	rm -rf dist
+
+clean-branches: ## Supprimer les branches locales et distantes fusionnées dans develop, sauf main et develop (distantes : selon les règles GitHub)
+	@git fetch --prune -q
+	@echo "$(YELLOW)Branches locales à supprimer :$(RESET)"
+	@out="$$($(LOCAL_BRANCHES))"; [ -n "$$out" ] && echo "$$out" | sed 's/^/  /' || echo "  (aucune)"
+	@echo "$(YELLOW)Branches distantes à supprimer :$(RESET)"
+	@out="$$($(REMOTE_BRANCHES))"; [ -n "$$out" ] && echo "$$out" | sed 's/^/  /' || echo "  (aucune)"
+	@echo ""
+	@printf "$(RED)⚠️  Confirmer la suppression ? [y/N] $(RESET)" && read ans && [ "$${ans}" = "y" ] || { echo "$(YELLOW)Annulé.$(RESET)"; exit 1; }
+
+	@echo "$(YELLOW)Suppression des branches locales...$(RESET)"
+	@$(LOCAL_BRANCHES) | xargs -r git branch -D || true
+
+	@echo "$(YELLOW)Suppression des branches distantes...$(RESET)"
+	@$(REMOTE_BRANCHES) | xargs -r -I {} git push origin --delete {} || true
+
+	@echo "$(GREEN)Nettoyage des branches terminé$(RESET)"
