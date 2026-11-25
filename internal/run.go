@@ -16,7 +16,6 @@ import (
 	"fmt"
 	"mzeahmed/commit/internal/ui"
 	"os"
-	"os/exec"
 	"strings"
 )
 
@@ -98,22 +97,6 @@ func Run(args []string) error {
 		if err := runStep("🎨 PHP-CS-Fixer", "vendor/bin/php-cs-fixer", "fix", "--dry-run", "--diff"); err != nil {
 			return err
 		}
-
-		// Composer (si présent) : dernière étape avant le commit/push, le
-		// composer.lock mis à jour est donc inclus dans le commit. Les
-		// dépendances de dev sont réinstallées à la sortie de Run (push
-		// effectué, ou arrêt anticipé) pour que vendor/bin/ reste utilisable.
-		if _, lookErr := exec.LookPath("composer"); lookErr == nil {
-			defer func() {
-				if err := runStep("♻️  Composer (dépendances de dev)", "composer", "install"); err != nil {
-					fmt.Printf("%s⚠️  Réinstallation des dépendances de dev échouée : lance 'composer install'.%s\n", ui.Yellow, ui.Reset)
-				}
-			}()
-
-			if err := runStep("📦 Composer", "composer", "update", "--no-dev"); err != nil {
-				return err
-			}
-		}
 	} else {
 		fmt.Printf("%sℹ️  Pas d'outils PHP (vendor/) dans ce dépôt — lint ignoré.%s\n", ui.Yellow, ui.Reset)
 	}
@@ -140,7 +123,19 @@ func Run(args []string) error {
 	}
 	fmt.Printf("%s✅ Commit effectué.%s\n", ui.Green, ui.Reset)
 
-	// Push.
+	// Push, uniquement sur confirmation. Un refus (« No », Ctrl+C, EOF)
+	// n'est pas une erreur : le commit est conservé en local.
+	push, err := ui.Confirm(fmt.Sprintf("Pousser vers origin/%s ?", branchName), true)
+	if err != nil || !push {
+		fmt.Printf(
+			"%sℹ️  Rien poussé, le commit reste en local. Pour pousser : git push origin %s%s\n",
+			ui.Yellow,
+			branchName,
+			ui.Reset,
+		)
+		return nil
+	}
+
 	fmt.Printf("%s🚀 Push vers origin/%s...%s\n", ui.Cyan, branchName, ui.Reset)
 	if err := runGit("push", "origin", branchName); err != nil {
 		return err
